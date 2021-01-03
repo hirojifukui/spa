@@ -1,10 +1,28 @@
 import Vue from 'vue'
+
+import VueRouter from 'vue-router'
+import VModal from 'vue-js-modal'
+import axios from 'axios'
+
 import App from './App.vue'
-import router from './router'
+import { routes } from './routes'
+
+export const eventBus = new Vue();
+
+Vue.use(VModal, {dialog: true, dynamic: true})
 
 Vue.config.productionTip = false
 
+Vue.use(VueRouter);
+
+axios.defaults.baseURL = 'http://localhost:5000'
+
+const router = new VueRouter({
+  routes: routes,
+  mode: 'history'
+});
+
 new Vue({
-  router,
-  render: h => h(App)
+  router: router,
+  render: h => h(App),
 }).$mount('#app')

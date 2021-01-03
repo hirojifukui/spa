@@ -1,6 +1,6 @@
 /backend/__pycache__
 /backend/app/__pycache__/
-
+/backend/.DS_Store
 
 .DS_Store
 .vscode/
