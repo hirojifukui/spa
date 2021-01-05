@@ -8,8 +8,7 @@
 <script>
 import axios from 'axios'
 export default {
-  
-  props: ['col_header_list'],
+  props: ['col_header_list', 'curr_date_obj'],
   data () {
     return {      
       curr_date: {},
@@ -22,14 +21,17 @@ export default {
   methods: {
     generateTimes(){
       for(let i = this.timepicker_start; i <= this.timepicker_end; i++){
-        if(i < 10)  this.time_list.push(i+":00")
-        else  this.time_list.push(i+":00")
-       
+        this.time_list.push(i+":00")     
       }
     },
     createContainer(){
       const chart_div = document.querySelector('.chart')
       chart_div.innerHTML = ''
+      let total_col_num = this.col_header_list.length
+      let total_row_num = this.time_list.length
+      chart_div.style.cssText = 
+          "grid-template-columns: [times] 3em repeat(" + total_col_num + ", 1fr); \
+           grid-template-rows: [times] auto repeat(" + total_row_num + ", 1fr);"
       let i = 2
       for (let header of this.col_header_list){
         const chart_header_span =  document.createElement('span')
@@ -60,49 +62,36 @@ export default {
         i++
       }
     },
-    async addItemByObject(){
-      for(let event of this.event_list){
-        let start_time_date = new Date(event.start_time * 1000).getHours()
-        let end_time_date = new Date(event.end_time * 1000).getHours()
-        const chart_div = document.querySelector('.chart')
-        const item_div = document.createElement('span')
-        let track = this.col_header_list.indexOf(event.track) + 2
-        let start_row = this.time_list.indexOf(start_time_date + ":00") + 2
-        let end_row = this.time_list.indexOf(end_time_date + ":00") + 2
-        item_div.style.cssText = 
-              "grid-column: " + track + "; grid-row: " + start_row + "/" + end_row;
-        item_div.innerHTML = event.name
-        item_div.classList.add('chart-item')
-        chart_div.appendChild(item_div)
-      }
+    addItemByObject(event){
+      let start_time_date = new Date(event.start_time * 1000).getHours()
+      let end_time_date = new Date(event.end_time * 1000).getHours()
+      const chart_div = document.querySelector('.chart')
+      const item_div = document.createElement('span')
+      let track = this.col_header_list.indexOf(event.track) + 2
+      let start_row = this.time_list.indexOf(start_time_date + ":00") + 2
+      let end_row = this.time_list.indexOf(end_time_date + ":00") + 2
+      item_div.style.cssText = 
+            "grid-column: " + track + "; grid-row: " + start_row + "/" + end_row;
+      item_div.innerHTML = event.name
+      item_div.classList.add('chart-item')
+      chart_div.appendChild(item_div)
     },
-    async get_events_today(){
-      let curr_date_obj = {
-        date: this.curr_date + ' 00:00:00'
-      }
+    async get_events_today(date_obj){
       axios
-        .post('http://127.0.0.1:5000/get_today_events', curr_date_obj)
+        .post('http://127.0.0.1:5000/get_today_events', date_obj)
         .then(res => {
-        this.event_list = JSON.parse(res.data)
-        this.addItemByObject();
+          this.event_list = JSON.parse(res.data)
+          for(let event of this.event_list){
+            this.addItemByObject(event);
+          }
         })
         .catch(err =>{
           console.log(err)
         })
     },
-    gen_curr_date(){
-      let today = new Date();
-      let month = today.getMonth()+1 //mm
-      let day = today.getDate() //dd
-      let year = today.getFullYear() //yyyy
-      if (day < 10) day = '0' + day
-      if (month < 10) month = '0' + month
-      this.curr_date = year + '-' + month + '-' + day
-    }
   },
   mounted(){
-    this.gen_curr_date();
-    this.get_events_today();
+    this.get_events_today(this.curr_date_obj);
     this.generateTimes();
     this.createContainer();
 
@@ -120,12 +109,6 @@ export default {
     border: 1px solid #000;
     position: relative;
     overflow: hidden;
-    grid-template-columns: 
-      [times] 3em
-      repeat(8, 1fr);
-    grid-template-rows: 
-      [times] auto
-      repeat(12, 1fr);
   }
   .chart-col{
     background-color: #dcdcdc;

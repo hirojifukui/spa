@@ -1,13 +1,11 @@
 import Vue from 'vue'
+import App from './App.vue'
 
 import VueRouter from 'vue-router'
 import VModal from 'vue-js-modal'
 import axios from 'axios'
 
-import App from './App.vue'
 import { routes } from './routes'
-
-export const eventBus = new Vue();
 
 Vue.use(VModal, {dialog: true, dynamic: true})
 
@@ -26,3 +24,4 @@ new Vue({
   router: router,
   render: h => h(App),
 }).$mount('#app')
+

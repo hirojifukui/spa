@@ -1,9 +1,9 @@
 <template>
   <div>
     <div class="flex-column d-flex container">
-      <div class="row options">
+      <div class="row button">
         <div class="col">
-          Showing Events for {{ curr_date }}
+          Showing events for {{ curr_date }}
         </div>
         <div class="col">
           <button type="button" class="btn add" data-toggle="modal" data-target="#addEvent">
@@ -18,7 +18,8 @@
     <div class="row">
       <div class="col">
         <app-scheduler 
-            :col_header_list="col_header_list"> 
+            :col_header_list="col_header_list"
+            :curr_date_obj="curr_date_obj"> 
         </app-scheduler>
       </div>
     </div>
@@ -35,7 +36,10 @@ export default {
     return{
       col_header_list: ['Track1', 'Track2', 'Track3', 'Track4', 
                         'Track5', 'Track6', 'Track7', 'Track8'],
-      curr_date:''
+      curr_date: "",
+      curr_date_obj: {
+        date: this.curr_date
+      }
     }
   },
   components: {
@@ -45,7 +49,7 @@ export default {
   methods: {
     gen_curr_date(){
       let today = new Date();
-      let month = today.getMonth()+1 //mm
+      let month = today.getMonth() + 1 //mm
       let day = today.getDate() //dd
       let year = today.getFullYear() //yyyy
       if (day < 10) day = '0' + day
@@ -60,7 +64,7 @@ export default {
 </script>
 
 <style scoped>
-.options{
+.button{
   margin-bottom: 30px;
 }
 .add{
@@ -69,10 +73,5 @@ export default {
   background-color: rgb(34,123,206);
   color:white;
   float: right;
-}
-#res-btn{
-  border: 2px solid black;
-  border-radius: 1px;
-  pointer-events: auto;
 }
 </style>

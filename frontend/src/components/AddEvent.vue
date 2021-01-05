@@ -77,7 +77,6 @@ export default {
       today.setHours(input_time);
       today.setMinutes(0)
       today.setSeconds(0)
-
       return today.getTime()
     },
     submitModal(){
