@@ -8,21 +8,37 @@
 <script>
 import axios from 'axios'
 export default {
-  props: ['col_header_list', 'curr_date_obj'],
+  props: ['col_header_list'],
   data () {
-    return {      
-      curr_date: {},
+    return {     
+      curr_date: "", 
       event_list: [],
       time_list: [],
       timepicker_start: 7,
       timepicker_end: 18,
     };
   },
-  methods: {
+  methods: {    
+    gen_curr_date(){
+      let today = new Date();
+      let month = today.getMonth() + 1 //mm
+      let day = today.getDate() //dd
+      let year = today.getFullYear() //yyyy
+      if (day < 10) day = '0' + day
+      if (month < 10) month = '0' + month
+      this.curr_date = year + '-' + month + '-' + day
+    },
     generateTimes(){
       for(let i = this.timepicker_start; i <= this.timepicker_end; i++){
         this.time_list.push(i+":00")     
       }
+      let today = new Date();
+      let month = today.getMonth() + 1 //mm
+      let day = today.getDate() //dd
+      let year = today.getFullYear() //yyyy
+      if (day < 10) day = '0' + day
+      if (month < 10) month = '0' + month
+      this.curr_date = year + '-' + month + '-' + day + " 00:00:00"
     },
     createContainer(){
       const chart_div = document.querySelector('.chart')
@@ -76,9 +92,12 @@ export default {
       item_div.classList.add('chart-item')
       chart_div.appendChild(item_div)
     },
-    async get_events_today(date_obj){
+    async get_events_today(){
+      let curr_date_obj = {
+        today: this.curr_date
+      }
       axios
-        .post('http://127.0.0.1:5000/get_today_events', date_obj)
+        .post('http://127.0.0.1:5000/get_today_events', curr_date_obj)
         .then(res => {
           this.event_list = JSON.parse(res.data)
           for(let event of this.event_list){
@@ -91,8 +110,8 @@ export default {
     },
   },
   mounted(){
-    this.get_events_today(this.curr_date_obj);
     this.generateTimes();
+    this.get_events_today();
     this.createContainer();
 
   }

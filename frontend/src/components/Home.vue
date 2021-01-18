@@ -18,8 +18,7 @@
     <div class="row">
       <div class="col">
         <app-scheduler 
-            :col_header_list="col_header_list"
-            :curr_date_obj="curr_date_obj"> 
+            :col_header_list="col_header_list"> 
         </app-scheduler>
       </div>
     </div>
@@ -36,10 +35,7 @@ export default {
     return{
       col_header_list: ['Track1', 'Track2', 'Track3', 'Track4', 
                         'Track5', 'Track6', 'Track7', 'Track8'],
-      curr_date: "",
-      curr_date_obj: {
-        date: this.curr_date
-      }
+      curr_date: ""
     }
   },
   components: {

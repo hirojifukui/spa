@@ -45,19 +45,13 @@ def get_all_events():
 def get_today_events():
     in_data = request.data
     curr_date_obj = json.loads(in_data)
-    curr_date_obj['date'] = utils.datetime_to_epoch(curr_date_obj['date'])
-    today_events = Event.objects(start_time__gte=curr_date_obj['date'], end_time__lte=curr_date_obj['date'] + utils.DAY_LEN_EPOCH)
-    return_dict =[]
-    i = 0
-    # print(curr_date_obj['date'])
+    today_in_epoch = utils.datetime_to_epoch(curr_date_obj['today'])
+    today_events = Event.objects(start_time__gte=today_in_epoch, end_time__lte=today_in_epoch + utils.DAY_LEN_EPOCH)
+    return_dict = []
     for event in today_events:
-        # print(json.loads(today_events.to_json()))
-        if event.start_time > curr_date_obj['date'] and event.end_time < (curr_date_obj['date'] + utils.DAY_LEN_EPOCH):
+        if event.start_time > today_in_epoch and event.end_time < (today_in_epoch + utils.DAY_LEN_EPOCH):
             return_dict.append(event.to_mongo())
         i += 1
-    # print(return_dict)
-    # print(json.dumps(return_dict))
-    # return json.dumps(return_dict)
     return json.dumps(today_events.to_json())
 
 
