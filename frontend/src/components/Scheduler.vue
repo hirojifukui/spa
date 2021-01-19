@@ -93,13 +93,10 @@ export default {
       chart_div.appendChild(item_div)
     },
     async get_events_today(){
-      let curr_date_obj = {
-        today: this.curr_date
-      }
       axios
-        .post('http://127.0.0.1:5000/get_today_events', curr_date_obj)
-        .then(res => {
-          this.event_list = JSON.parse(res.data)
+        .get('http://127.0.0.1:5000/get_today_events', {params:{ date:this.curr_date }})
+        .then(response => {
+          this.event_list = JSON.parse(response.data)
           for(let event of this.event_list){
             this.addItemByObject(event);
           }

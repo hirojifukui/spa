@@ -3,7 +3,6 @@ from datetime import datetime, date
 from app import app
 from app.models import Event
 
-
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 DAY_LEN_EPOCH = 86400
 
@@ -23,10 +22,8 @@ def event_validation(event_dict):
   temp_start_check = event_dict['start_time'] - today
   temp_end_check = event_dict['end_time'] - today
   while(temp_start_check > DAY_LEN_EPOCH):
-    print(temp_start_check)
     temp_start_check = temp_start_check - DAY_LEN_EPOCH
     temp_end_check = temp_end_check - DAY_LEN_EPOCH
-
 
   if (temp_start_check < 25200) or (temp_end_check > 64800) \
       or (event_dict['start_time'] > event_dict['end_time']):
@@ -49,6 +46,5 @@ def event_validation(event_dict):
 
   new_event = Event(name=event_dict['name'], start_time=event_dict['start_time'], \
                     end_time=event_dict['end_time'], track=event_dict['track'])
-  print(new_event)
   new_event.save()
   return response_dict
