@@ -16,10 +16,6 @@ def get_today_events():
     today = request.args.get('date')
     today_in_epoch = utils.datetime_to_epoch(today)
     today_events = Event.objects(start_time__gte=today_in_epoch, end_time__lte=today_in_epoch + utils.DAY_LEN_EPOCH)
-    return_dict = []
-    for event in today_events:
-        if event.start_time > today_in_epoch and event.end_time < (today_in_epoch + utils.DAY_LEN_EPOCH):
-            return_dict.append(event.to_mongo())
     return json.dumps(today_events.to_json())
 
 @app.after_request
