@@ -14,8 +14,8 @@
             <div class="form-group">
               <label class="typo__label">Track: </label>
               <select v-model="track">
-                <option v-for="option in col_header_list" :key="option">
-                  {{ option }}
+                <option v-for="option in col_header_list" :key="option.id">
+                  {{ option.display_name }}
                 </option>
               </select>
             </div>
