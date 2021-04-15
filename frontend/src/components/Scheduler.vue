@@ -4,7 +4,7 @@
       <thead>
         <tr>
           <th></th>
-          <th v-for="track in col_header_list" :key="track['id']" class="chart-header"> {{ track.display_name}}</th>
+          <th v-for="track in col_header_list" :key="track['id']" class="chart-header"> {{ track.display_name }}</th>
         </tr>
       </thead>
       <tbody>
@@ -12,9 +12,9 @@
           <th scope="row" class="chart-time">{{ time }}</th>
           <td v-for="track in col_header_list" :key="track['id']" class="chart-body">
             <div style="height:50px">
-              <template v-if="event_time_map[track.display_name].time_map[time].reserved"> 
-                <div :ref="event_time_map[track.id].time_map[time].event_data.name" class="chart-item">
-                  {{ event_time_map[track.id].time_map[time].event_data.name }}
+              <template v-if="event_time_map[track.display_name].time_map[time].reserved == true"> 
+                <div :ref="event_time_map[track.display_name].time_map[time].event_data.name" class="chart-item">
+                  {{ event_time_map[track.display_name].time_map[time].event_data.name }}
                 </div>
               </template>
             </div>
@@ -41,10 +41,12 @@ export default {
     };
   },
   methods: {    
-    generateTimes(){
+    gen_time_list(){
       for(let i = this.timepicker_start; i <= this.timepicker_end; i++){
         this.time_list.push(i+":00")     
       }
+      this.gen_header_list()
+
     },
     gen_header_list(){
       for(let i = 0; i <8; i++){
@@ -52,21 +54,20 @@ export default {
       }
     },
     gen_event_time_map(){
-      console.log(this.col_header_list)
       for(let track of this.col_header_list){
         let one_track_event_list = this.event_list.filter(event => { return event.track === track.display_name })
         let time_map = {}
-        for(let event of one_track_event_list){ 
-          let time = new Date(event.start_time)
+        for(let event of one_track_event_list){
+          let time = new Date(0)
+          time.setUTCSeconds(event.start_time)
           let hour = time.getHours()
           let min = time.getMinutes()
           if (min == 0) {
             min = `${min}0`
           }
           let time_hh_mm = `${hour}:${min}`
-          console.log(min)
           
-          Vue.set(time_map,time_hh_mm,{reserved: true, event_data:[event]})
+          Vue.set(time_map,time_hh_mm,{reserved: true, event_data:event})
         }
         for(let time of this.time_list){
           if(!time_map[time]) {
@@ -80,13 +81,11 @@ export default {
     },
     setHeight(){ 
       this.$nextTick(function () {
-        console.log(this.$refs)
-        for(let res of this.res_list){
-          if (this.$refs[res.id]){
-            this.$refs[res.id][0].style.height = `${res.time_block_count * 50}px`
-            // if(res.data.user_id == this.curr_user_id){
-            //   this.$refs[res.id][0].classList.value = 'chart-item-blue'
-            // }
+        // console.log(this.$refs)
+        for(let event of this.event_list){
+          if (this.$refs[event.name]){
+            let time_block_count = (event.end_time - event.start_time) / 3600 //3600 = 1 hour in seconds
+            this.$refs[event.name][0].style.height = `${time_block_count * 50}px`
           }
         }
       })
@@ -99,13 +98,12 @@ export default {
       if (day < 10) day = '0' + day
       if (month < 10) month = '0' + month
       this.curr_date = year + '-' + month + '-' + day + " 00:00:00"
-      // console.log(this.curr_date)
       let date_obj = { date:this.curr_date }
       axios
         .post('http://127.0.0.1:5000/get_today_events', date_obj)
         .then(response => {
           this.event_list = JSON.parse(response.data)
-          console.log(this.event_list)   
+          // console.log(this.event_list)   
           this.gen_event_time_map()
           
         })
@@ -116,8 +114,7 @@ export default {
   },
   mounted(){
     this.get_events_today()
-    this.gen_header_list()
-    this.generateTimes();
+    this.gen_time_list();
     // console.log(this.col_header_list)
   }
 }
@@ -165,7 +162,8 @@ export default {
     background-color: #0080FF;
     color: #ffffff;
     text-align: center;
-    overflow:hidden;
+    word-wrap: break-word;
+    overflow: hidden;
     position: relative;
     border: 1px solid rgb(110, 110, 110);
     border-radius: 5px;

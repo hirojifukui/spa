@@ -50,16 +50,10 @@ export default {
       if (day < 10) day = '0' + day
       if (month < 10) month = '0' + month
       this.curr_date = year + '-' + month + '-' + day
-    },
-    gen_header_list(){
-      for(let i = 0; i <8; i++){
-        this.col_header_list.push({id:`${i}`, display_name:`Track${i}`})
-      }
     }
   },
   mounted(){
     this.gen_curr_date();
-    this.gen_header_list()
   }
 }
 </script>
