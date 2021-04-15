@@ -11,10 +11,10 @@ def add_event():
     new_event = json.loads(in_data)
     return json.dumps(utils.event_validation(new_event))
 
-@app.route('/get_today_events', methods=['GET'])
+@app.route('/get_today_events', methods=['POST'])
 def get_today_events():
-    today = request.args.get('date')
-    today_in_epoch = utils.datetime_to_epoch(today)
+    today = json.loads(request.data)
+    today_in_epoch = utils.datetime_to_epoch(today['date'])
     today_events = Event.objects(start_time__gte=today_in_epoch, end_time__lte=today_in_epoch + utils.DAY_LEN_EPOCH)
     return json.dumps(today_events.to_json())
 
@@ -26,10 +26,6 @@ def after_request(response):
   response.headers.add('Access-Control-Allow-Credentials', 'true')
   return response
 
-# @app.route('/')
-# @app.route('/index')
-# def index():
-#     return "Hello, World"
 # @app.route('/save_event', methods=['GET','POST'])
 # def save_event():
 #     test_event = Event(

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex-column d-flex container">
-      <div class="row button">
+      <div class="row">
         <div class="col">
           Showing events for {{ curr_date }}
         </div>
@@ -17,7 +17,7 @@
     </div>
     <div class="row">
       <div class="col">
-        <app-scheduler 
+        <app-scheduler class="chart" 
             :col_header_list="col_header_list"> 
         </app-scheduler>
       </div>
@@ -60,8 +60,9 @@ export default {
 </script>
 
 <style scoped>
-.button{
-  margin-bottom: 30px;
+.chart{
+  display: flex;
+  justify-content: center;
 }
 .add{
   width: 148px;

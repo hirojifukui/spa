@@ -1,7 +1,27 @@
 <template>
-  <div class="container">
-    <div class="chart">
-    </div>
+  <div>
+    <table class="my-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th v-for="track of col_header_list" :key="track" :id="track" class="chart-header"> {{ track }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="time of time_list" :key="time" :id="time">
+          <th class="chart-time">{{ time }}</th>
+          <td v-for="track in col_header_list" :key="track" class="chart-body" :id="track">
+            <div style="height:50px"> {{track}}
+              <!-- <div v-if="event_time_map[track].time_map[time].reserved">
+                <div :ref="event_time_map[track].time_map[time].event_data.name" class="chart-item">
+                  {{ event_time_map[track].time_map[time].event_data.name }}
+                </div>
+              </div> -->
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -14,20 +34,12 @@ export default {
       curr_date: "", 
       event_list: [],
       time_list: [],
+      event_time_map:{},
       timepicker_start: 7,
       timepicker_end: 18,
     };
   },
   methods: {    
-    gen_curr_date(){
-      let today = new Date();
-      let month = today.getMonth() + 1 //mm
-      let day = today.getDate() //dd
-      let year = today.getFullYear() //yyyy
-      if (day < 10) day = '0' + day
-      if (month < 10) month = '0' + month
-      this.curr_date = year + '-' + month + '-' + day
-    },
     generateTimes(){
       for(let i = this.timepicker_start; i <= this.timepicker_end; i++){
         this.time_list.push(i+":00")     
@@ -39,67 +51,42 @@ export default {
       if (day < 10) day = '0' + day
       if (month < 10) month = '0' + month
       this.curr_date = year + '-' + month + '-' + day + " 00:00:00"
+      console.log(this.curr_date)
+      let date_obj = { date:this.curr_date }
+      this.get_events_today(date_obj)
     },
-    createContainer(){
-      const chart_div = document.querySelector('.chart')
-      chart_div.innerHTML = ''
-      let total_col_num = this.col_header_list.length
-      let total_row_num = this.time_list.length
-      chart_div.style.cssText = 
-          "grid-template-columns: [times] 3em repeat(" + total_col_num + ", 1fr); \
-           grid-template-rows: [times] auto repeat(" + total_row_num + ", 1fr);"
-      let i = 2
-      for (let header of this.col_header_list){
-        const chart_header_span =  document.createElement('span')
-        chart_header_span.id = i-1
-        chart_header_span.style.setProperty('grid-column', i)
-        chart_header_span.style.setProperty('grid-row', 'times')
-        chart_header_span.classList.add('chart-header')
-        chart_header_span.classList.add('chart-column')
-        chart_header_span.innerHTML = header
-
-        const chart_col_body_span =  document.createElement('span')
-        chart_col_body_span.style.cssText = 
-            "grid-row: 2/14; grid-column: " + i
-        chart_col_body_span.classList.add('chart-col')
-
-        chart_div.appendChild(chart_header_span)
-        chart_div.appendChild(chart_col_body_span)
-        i++
+    gen_event_time_map(){
+      for(let track of this.col_header_list){
+        let one_track_event_list = this.event_list.filter(event => { return event.track === track })
+        let time_map = {}
+        for(let event of one_track_event_list){ 
+          let time = new Date(event.start_time)
+          let hour = time.getHours()
+          let min = time.getMinutes()
+          if (min == 0){min = `${min}0`}
+          let time_hh_mm = `${hour}:${min}`
+          time_map[time_hh_mm] = {
+            reserved: true, 
+            event_data:[event]
+          }
+        }
+        for(let time of this.time_list){
+          if(!time_map[time]) {
+            time_map[time] = {reserved: false}
+          }
+        }
+        // console.log(track)
+        this.event_time_map[track] = {time_map:time_map}
       }
-      i = 2
-      for (let time of this.time_list){
-        const chart_time_span = document.createElement('span')
-        chart_time_span.style.cssText = 
-            "grid-column: times; grid-row: " + i;
-        chart_time_span.classList.add('chart-time')
-        chart_time_span.innerHTML = time  
-        chart_div.appendChild(chart_time_span)
-        i++
-      }
+      console.log(this.event_time_map['Track1'])
     },
-    addItemByObject(event){
-      let start_time_date = new Date(event.start_time * 1000).getHours()
-      let end_time_date = new Date(event.end_time * 1000).getHours()
-      const chart_div = document.querySelector('.chart')
-      const item_div = document.createElement('span')
-      let track = this.col_header_list.indexOf(event.track) + 2
-      let start_row = this.time_list.indexOf(start_time_date + ":00") + 2
-      let end_row = this.time_list.indexOf(end_time_date + ":00") + 2
-      item_div.style.cssText = 
-            "grid-column: " + track + "; grid-row: " + start_row + "/" + end_row;
-      item_div.innerHTML = event.name
-      item_div.classList.add('chart-item')
-      chart_div.appendChild(item_div)
-    },
-    async get_events_today(){
+    get_events_today(date_obj){
       axios
-        .get('http://127.0.0.1:5000/get_today_events', {params:{ date:this.curr_date }})
+        .post('http://127.0.0.1:5000/get_today_events', date_obj)
         .then(response => {
           this.event_list = JSON.parse(response.data)
-          for(let event of this.event_list){
-            this.addItemByObject(event);
-          }
+          console.log(this.event_list)
+          this.gen_event_time_map()
         })
         .catch(err =>{
           console.log(err)
@@ -108,36 +95,37 @@ export default {
   },
   mounted(){
     this.generateTimes();
-    this.get_events_today();
-    this.createContainer();
-
+    console.log(this.event_time_map)
   }
 }
 </script>
 
 <style>
-  .container {
-    max-width: 1400px;
-    min-width: 650px;
-  } 
-  .chart{
-    display: grid;
-    border: 1px solid #000;
-    position: relative;
-    overflow: hidden;
-  }
-  .chart-col{
-    background-color: #dcdcdc;
-    border-left: 1px solid rgba(0,0,0,0.3);
-  }
+  .my-table {
+    margin-top: 10px;
+    table-layout: fixed;
+    border-bottom: 1px solid rgba(0,0,0,0.45);
 
+  } 
+  table.my-table th {
+    border: 1px solid black;
+    padding: 7px;
+    text-align: center;
+  }
+  table.my-table td {
+    text-align: center;
+  }
+  .chart-body{
+    background-color: #dcdcdc;
+    border-right: 1px solid rgba(0,0,0,0.45);
+  }
+  .chart-body:nth-of-type(2n){
+    background-color: #bbbbbb;
+  }
   .chart-header{
     color: #ffffff;
     background-color: #708090 !important;
-    border-left: 1px solid rgba(0,0,0,0.3);
-    border-bottom: 1px solid rgba(0,0,0,0.3);
-    text-align:center;
-    align-self: center;
+    width:100px;
     padding: 5px;
     font-size: 13px;
     font-weight: bold;
@@ -145,21 +133,20 @@ export default {
   .chart-time{
     background-color:#808080;
     color:#fff;
-    border-top: 1px solid rgba(0,0,0,0.3);
     padding: 20px 0;
     text-align: center;
     align-self: center;
     font-size: 13px;
   }
   .chart-item {
+    background-color: #0080FF;
     color: #ffffff;
     text-align: center;
-    background-color: #0080FF;
-    overflow: hidden;
+    overflow:hidden;
     position: relative;
+    border: 1px solid rgb(110, 110, 110);
     border-radius: 5px;
     margin: 2px;
-    margin-left: 3px;
     padding-top: 15px;
   }
 </style>
