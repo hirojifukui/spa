@@ -1,3 +1,5 @@
 Hello
 Adding line from Seb branch
 Conflict!
+
+Making new conflict
