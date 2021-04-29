@@ -1,2 +1,4 @@
 Hello
 Adding line from Seb branch
+
+Making new conflict
