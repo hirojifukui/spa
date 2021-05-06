@@ -41,7 +41,12 @@ export default {
     appAddEvent: AddEvent,
     appScheduler: Scheduler
   },
-  methods: {
+  methods: {    
+    gen_header_list(){
+      for(let i = 0; i <8; i++){
+        this.col_header_list.push({id:`${i}`, display_name:`Track${i}`})
+      }
+    },
     gen_curr_date(){
       let today = new Date();
       let month = today.getMonth() + 1 //mm
@@ -53,6 +58,7 @@ export default {
     }
   },
   mounted(){
+    this.gen_header_list()
     this.gen_curr_date();
   }
 }
