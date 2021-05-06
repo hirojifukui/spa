@@ -1,2 +1,5 @@
 Hello
-Added line from develop branch
+Adding line from Seb branch
+Conflict!
+
+Making new conflict
