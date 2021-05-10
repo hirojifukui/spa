@@ -17,16 +17,8 @@ def epoch_to_datetime(time: int, time_format=TIME_FORMAT):
 
 def event_validation(event_dict):
   response_dict = {}
-
-  today = datetime_to_epoch('{} 00:00:00'.format(date.today()))
-  temp_start_check = event_dict['start_time'] - today
-  temp_end_check = event_dict['end_time'] - today
-  while(temp_start_check > DAY_LEN_EPOCH):
-    temp_start_check = temp_start_check - DAY_LEN_EPOCH
-    temp_end_check = temp_end_check - DAY_LEN_EPOCH
-
-  if (temp_start_check < 25200) or (temp_end_check > 64800) \
-      or (event_dict['start_time'] > event_dict['end_time']):
+  
+  if (event_dict['start_time'] > event_dict['end_time']):
     response_dict['success'] = 'false'
     response_dict['message'] = 'Invalid start or end time'
     return response_dict
