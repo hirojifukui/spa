@@ -5,6 +5,11 @@ from app.models import Event
 
 from flask import request, jsonify
 
+
+@app.route('/test', methods=['GET'])
+def test():
+    return "Message from flask"
+
 @app.route('/add_event', methods=['POST'])
 def add_event():
     in_data = request.data
