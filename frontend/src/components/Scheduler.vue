@@ -100,7 +100,7 @@ export default {
       this.curr_date = year + '-' + month + '-' + day + " 00:00:00"
       let date_obj = { date:this.curr_date }
       axios
-        .post('http://127.0.0.1:5000/get_today_events', date_obj)
+        .post('http://34.209.191.251/get_today_events', date_obj)
         .then(response => {
           this.event_list = JSON.parse(response.data)
           // console.log(this.event_list)   

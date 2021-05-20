@@ -100,7 +100,7 @@ export default {
     },
     post_request(form_obj){
       axios
-        .post('http://127.0.0.1:5000/add_event', form_obj)
+        .post('http://34.209.191.251/add_event', form_obj)
         .then(res => {
           if(res.data['success'] == 'true'){
             console.log('success')
